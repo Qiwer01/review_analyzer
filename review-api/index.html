@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Аналитик отзывов</title>
+<style>
+  :root {
+    --ink: #1F2A22;
+    --ink-soft: #4B5A4E;
+    --bg: #F4F6F0;
+    --panel: #FFFFFF;
+    --line: #DCE3D6;
+    --accent: #3F6C51;
+    --accent-soft: #E7EFE4;
+    --negative: #B0472E;
+    --negative-soft: #F7E7E2;
+    --neutral: #A0813F;
+    --neutral-soft: #F3ECDC;
+    --positive: #3F6C51;
+    --positive-soft: #E7EFE4;
+    --radius: 10px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #E7ECE4;
+      --ink-soft: #AEB8AC;
+      --bg: #161B17;
+      --panel: #1D231E;
+      --line: #2C352D;
+      --accent: #7FB893;
+      --accent-soft: #22301F;
+      --negative: #E58269;
+      --negative-soft: #33221D;
+      --neutral: #D8B86B;
+      --neutral-soft: #302A1B;
+      --positive: #7FB893;
+      --positive-soft: #22301F;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  header h1 {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 2.1rem;
+    font-weight: 600;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--ink-soft);
+    max-width: 52ch;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-top: 28px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 160px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--ink);
+    font: inherit;
+    resize: vertical;
+  }
+
+  textarea:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    font: inherit;
+    font-weight: 600;
+    padding: 11px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  button.secondary {
+    background: transparent;
+    color: var(--accent);
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  button:hover:not(:disabled) {
+    filter: brightness(1.05);
+  }
+
+  .hint {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-top: 10px;
+  }
+
+  .results-panel h2, .report-panel h2 {
+    font-size: 1.05rem;
+    margin: 0 0 16px;
+  }
+
+  .review-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .review-row:last-child { border-bottom: none; }
+
+  .badge {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge.negative { background: var(--negative-soft); color: var(--negative); }
+  .badge.neutral  { background: var(--neutral-soft);  color: var(--neutral); }
+  .badge.positive { background: var(--positive-soft); color: var(--positive); }
+
+  .review-text {
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+  }
+
+  .topic-card {
+    border-top: 1px solid var(--line);
+    padding: 18px 0;
+  }
+  .topic-card:first-of-type { border-top: none; padding-top: 0; }
+
+  .topic-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .topic-head h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .topic-share {
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .topic-card p {
+    margin: 8px 0 0;
+    max-width: 68ch;
+  }
+
+  .topic-example {
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .topic-recommendation {
+    color: var(--accent);
+  }
+
+  .priorities {
+    margin: 8px 0 0;
+    padding-left: 22px;
+  }
+  .priorities li { margin-bottom: 6px; }
+
+  .empty-state, .error-state {
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+  }
+
+  .error-state { color: var(--negative); }
+
+  footer {
+    margin-top: 40px;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Аналитик отзывов</h1>
+    <p>Вставьте отзывы клиентов — модель определит тональность каждого, а на негативных найдёт повторяющиеся темы и предложит, что исправить.</p>
+  </header>
+
+  <section class="panel">
+    <label for="reviews-input">Отзывы (каждый — с новой строки)</label>
+    <textarea id="reviews-input" placeholder="The product arrived damaged and half the jar was leaking.&#10;Great taste, will buy again.&#10;Delivery took three weeks."></textarea>
+    <div class="actions">
+      <button id="btn-sentiment" onclick="checkSentiment()">Проверить тональность</button>
+      <button id="btn-report" class="secondary" onclick="findComplaints()">Найти причины жалоб</button>
+    </div>
+    <p class="hint">Второй кнопке нужно хотя бы несколько негативных отзывов в списке — по ним LLM собирает отчёт.</p>
+  </section>
+
+  <section class="panel results-panel">
+    <h2>Тональность</h2>
+    <div id="results-body" class="empty-state">Здесь появится тональность каждого отзыва после проверки.</div>
+  </section>
+
+  <section class="panel report-panel">
+    <h2>Причины жалоб</h2>
+    <div id="report-body" class="empty-state">Здесь появится разбивка по темам и рекомендации после анализа.</div>
+  </section>
+
+  <footer>Страница обращается к локальному API на этой же машине (FastAPI, порт 8000).</footer>
+</div>
+
+<script>
+  const sentimentLabels = { negative: 'негатив', neutral: 'нейтрал', positive: 'позитив' };
+
+  function getReviews() {
+    const raw = document.getElementById('reviews-input').value;
+    return raw.split('\n').map(s => s.trim()).filter(Boolean);
+  }
+
+  function setBusy(btnId, busy, label, busyLabel) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = busy;
+    btn.textContent = busy ? busyLabel : label;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+  }
+
+  async function checkSentiment() {
+    const reviews = getReviews();
+    const body = document.getElementById('results-body');
+    if (!reviews.length) {
+      body.className = 'empty-state';
+      body.textContent = 'Добавьте хотя бы один отзыв в поле выше.';
+      return;
+    }
+    setBusy('btn-sentiment', true, 'Проверить тональность', 'Проверяем…');
+    try {
+      const res = await fetch('/predict-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviews }),
+      });
+      if (!res.ok) throw new Error('bad-status');
+      const data = await res.json();
+      renderSentiment(data.results);
+    } catch (e) {
+      body.className = 'error-state';
+      body.textContent = 'Не удалось связаться с API. Убедитесь, что сервер запущен: uvicorn api:app --reload.';
+    } finally {
+      setBusy('btn-sentiment', false, 'Проверить тональность', 'Проверяем…');
+    }
+  }
+
+  function renderSentiment(results) {
+    const body = document.getElementById('results-body');
+    body.className = '';
+    body.innerHTML = results.map(r => `
+      <div class="review-row">
+        <span class="badge ${r.sentiment}">${sentimentLabels[r.sentiment] || r.sentiment}</span>
+        <span class="review-text">${escapeHtml(r.text)}</span>
+      </div>
+    `).join('');
+  }
+
+  async function findComplaints() {
+    const reviews = getReviews();
+    const body = document.getElementById('report-body');
+    if (!reviews.length) {
+      body.className = 'empty-state';
+      body.textContent = 'Добавьте хотя бы один отзыв в поле выше.';
+      return;
+    }
+    setBusy('btn-report', true, 'Найти причины жалоб', 'Анализируем, 10–20 секунд…');
+    try {
+      const res = await fetch('/analyze-negative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviews }),
+      });
+      if (res.status === 400) {
+        const err = await res.json();
+        body.className = 'empty-state';
+        body.textContent = err.detail || 'Среди присланных отзывов не найдено негативных.';
+        return;
+      }
+      if (!res.ok) throw new Error('bad-status');
+      const data = await res.json();
+      renderReport(data.analysis);
+    } catch (e) {
+      body.className = 'error-state';
+      body.textContent = 'Не удалось связаться с API. Убедитесь, что сервер запущен: uvicorn api:app --reload.';
+    } finally {
+      setBusy('btn-report', false, 'Найти причины жалоб', 'Анализируем, 10–20 секунд…');
+    }
+  }
+
+  function renderReport(analysis) {
+    const body = document.getElementById('report-body');
+    if (!analysis || analysis.error) {
+      body.className = 'error-state';
+      body.textContent = 'LLM вернула ответ, который не удалось разобрать. Попробуйте ещё раз.';
+      return;
+    }
+    body.className = '';
+    const topics = (analysis.topics || []).map(t => `
+      <div class="topic-card">
+        <div class="topic-head">
+          <h3>${escapeHtml(t.title)}</h3>
+          <span class="topic-share">${t.share_percent ?? '?'}%</span>
+        </div>
+        <p>${escapeHtml(t.description)}</p>
+        <p class="topic-example">«${escapeHtml(t.example)}»</p>
+        <p class="topic-recommendation">${escapeHtml(t.recommendation)}</p>
+      </div>
+    `).join('');
+
+    const priorities = (analysis.top_priorities || []).map(p => `<li>${escapeHtml(p)}</li>`).join('');
+
+    body.innerHTML = topics + (priorities ? `
+      <div class="topic-card">
+        <h3>Топ-приоритеты</h3>
+        <ol class="priorities">${priorities}</ol>
+      </div>
+    ` : '');
+  }
+</script>
+</body>
+</html>
