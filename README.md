@@ -8,7 +8,7 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Qiwer01/review_analyzer/blob/main/review_analyzer_colab.ipynb)
 
-🔗 **Живой демо-сервис:** `http://54.252.232.152:8000` _(поднят на AWS EC2; если недоступен — см. раздел «Запуск» ниже, чтобы поднять свою копию)_
+🔗 **Живой демо-сервис:** `http://3.25.99.0:8000` _(поднят на AWS EC2; если недоступен — см. раздел «Запуск» ниже, чтобы поднять свою копию)_
 
 ![Демо интерфейса](screenshots/demo.png)
 
